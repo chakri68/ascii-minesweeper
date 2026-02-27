@@ -1,0 +1,42 @@
+:root {
+  font-family: system-ui, Avenir, Helvetica, Arial, sans-serif;
+  line-height: 1.5;
+  font-weight: 400;
+
+  color-scheme: light dark;
+  color: rgba(255, 255, 255, 0.87);
+  background-color: #242424;
+
+  font-synthesis: none;
+  text-rendering: optimizeLegibility;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+
+  /* GLOBAL GAME VARS */
+  --cell-size: 2.5rem;
+}
+
+#board {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+  background-color: #222222;
+  width: max-content;
+  padding: 2rem;
+}
+
+.row {
+  display: flex;
+  flex-direction: row;
+  gap: 0.25rem;
+}
+
+.cell {
+  width: var(--cell-size);
+  height: var(--cell-size);
+  border-radius: 0.25rem;
+  background-color: #333333;
+  cursor: pointer;
+  display: grid;
+  place-items: center;
+}
