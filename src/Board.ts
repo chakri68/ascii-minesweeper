@@ -140,6 +140,9 @@ export class Board {
       cell.status = CellStatus.HIDDEN;
       this.minesRemaining++;
     }
+
+    // After every reveal, check if the player has won
+    this.checkWinCondition();
   }
 
   private attemptChord(coord: Vector2D, cell: CellState) {
@@ -187,7 +190,6 @@ export class Board {
 
   private endGame(coord: Vector2D, state: GameState) {
     this.gameState = state;
-    // Reveal all mines on game end (optional UX improvement)
     if (state === GameState.LOSE) {
       this.revealAllMines();
     }
