@@ -4,14 +4,28 @@
     <meta charset="UTF-8" />
     <link rel="icon" type="image/svg+xml" href="/vite.svg" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>mines</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300..700&display=swap&family=VT323&display=swap"
+      rel="stylesheet"
+    />
+    <title>Minesweeper</title>
   </head>
   <body>
     <div id="app">
       <div id="game">
+        <div id="main-text">
+          <h3 id="heading">Minesweeper</h3>
+          <p id="instructions">Click to play</p>
+          <div id="mine-count"></div>
+        </div>
         <div id="board"></div>
       </div>
     </div>
+    <footer>
+      <p class="footer-text">Tribute to my first ever Windows game</p>
+    </footer>
     <script type="module" src="/src/main.ts"></script>
   </body>
 </html>

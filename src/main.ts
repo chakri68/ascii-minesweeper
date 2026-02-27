@@ -25,6 +25,9 @@ function initBoardUI(board: Board) {
 }
 
 function renderBoard(board: Board) {
+  const mineCountEl = document.getElementById("mine-count")!;
+  mineCountEl.innerText = `Mines remaining: ${board.minesRemaining}`;
+
   const size = board.size;
   for (let y = 0; y < size.y; y++) {
     for (let x = 0; x < size.x; x++) {
@@ -34,21 +37,21 @@ function renderBoard(board: Board) {
       switch (cellState.status) {
         case CellStatus.FLAGGED:
           cell.innerText = "🚩";
-          return;
+          break;
         case CellStatus.HIDDEN:
           cell.innerText = "";
-          return;
+          break;
         case CellStatus.REVEALED: {
           switch (cellState.type) {
             case CellType.EMPTY:
               cell.innerText = "";
-              return;
+              break;
             case CellType.MINE:
               cell.innerText = "💣";
-              return;
+              break;
             case CellType.NUMBER:
               cell.innerText = `${cellState.val}`;
-              return;
+              break;
           }
         }
       }
@@ -68,13 +71,23 @@ async function main() {
   for (let y = 0; y < BOARD_SIZE.y; y++) {
     for (let x = 0; x < BOARD_SIZE.x; x++) {
       document.getElementById(`${x}-${y}`)!.addEventListener("click", () => {
-        console.log("CLICK");
         if (b.gameState === GameState.LOSE || b.gameState === GameState.WIN)
           return;
+
         b.revealCell({ x, y });
-        console.log(b);
         renderBoard(b);
       });
+
+      document
+        .getElementById(`${x}-${y}`)!
+        .addEventListener("contextmenu", (e) => {
+          e.preventDefault();
+          if (b.gameState === GameState.LOSE || b.gameState === GameState.WIN)
+            return;
+
+          b.toggleFlag({ x, y });
+          renderBoard(b);
+        });
     }
   }
 }

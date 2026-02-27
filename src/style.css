@@ -4,8 +4,6 @@
   font-weight: 400;
 
   color-scheme: light dark;
-  color: rgba(255, 255, 255, 0.87);
-  background-color: #242424;
 
   font-synthesis: none;
   text-rendering: optimizeLegibility;
@@ -14,6 +12,79 @@
 
   /* GLOBAL GAME VARS */
   --cell-size: 2.5rem;
+
+  /* Theme color vars (defaults to dark theme) */
+  --color-background: #242424;
+  --color-game-background: #1e1e1e;
+  --color-panel-background: #2e2e2e;
+  --color-text: rgba(255, 255, 255, 0.87);
+  --color-text-muted: rgba(255, 255, 255, 0.5);
+  --color-accent: #646cff;
+  --color-accent-hover: #535bf2;
+  --color-block: #ffffff;
+
+  /* Theme font vars (defaults) */
+  --font-primary: "Space Grotesk", sans-serif;
+  --font-monospace: "Courier New", Courier, monospace;
+  --font-heading-weight: 600;
+  --font-body-weight: 400;
+  --font-heading-size: 2rem;
+  --font-body-size: 1rem;
+}
+
+body {
+  color: var(--color-text);
+  background-color: var(--color-background);
+  font-family: var(--font-primary);
+  font-weight: var(--font-body-weight);
+  font-size: var(--font-body-size);
+}
+
+body {
+  margin: 0;
+  min-width: 320px;
+  min-height: 100vh;
+  display: grid;
+  grid-template-rows: 1fr auto;
+}
+
+#app {
+  display: grid;
+  place-items: center;
+}
+
+#game {
+  max-width: 1280px;
+  min-width: 480px;
+  width: fit-content;
+  margin: 0 auto;
+  display: grid;
+  grid-template-rows: 160px auto;
+  border-radius: 1rem;
+  background-color: var(--color-panel-background);
+  padding: 0.25rem;
+}
+
+#main-text {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+  text-align: center;
+  padding: 2rem;
+
+  #heading {
+    font-size: var(--font-heading-size);
+    font-weight: var(--font-heading-weight);
+    margin: 0;
+  }
+
+  #instructions {
+    font-size: 0.65rem;
+    line-height: 1.4;
+    margin: 0;
+    margin-bottom: 1rem;
+    color: var(--color-text-muted);
+  }
 }
 
 #board {
@@ -23,6 +94,11 @@
   background-color: #222222;
   width: max-content;
   padding: 2rem;
+  height: fit-content;
+  min-width: 320px;
+  padding: 2rem;
+  border-radius: 0.8rem;
+  background-color: var(--color-game-background);
 }
 
 .row {
@@ -39,4 +115,14 @@
   cursor: pointer;
   display: grid;
   place-items: center;
+}
+
+footer {
+  text-align: center;
+  margin: 2rem;
+
+  .footer-text {
+    font-size: 0.75rem;
+    color: var(--color-text-muted);
+  }
 }
