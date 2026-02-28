@@ -188,7 +188,7 @@ export class Board {
     this.endGame({ x: -1, y: -1 }, GameState.WIN);
   }
 
-  private endGame(coord: Vector2D, state: GameState) {
+  private endGame(_: Vector2D, state: GameState) {
     this.gameState = state;
     if (state === GameState.LOSE) {
       this.revealAllMines();
