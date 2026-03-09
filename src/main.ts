@@ -1,18 +1,75 @@
 import { Board } from "./Board";
 import "./style.css";
-import { CellStatus, CellType, GameState, type Vector2D } from "./types";
+import { CellStatus, CellType, GameState, Difficulty } from "./types";
+import { DIFFICULTY_CONFIGS } from "./constants";
 
 const uiBoard = document.getElementById("board")!;
 const instructions = document.getElementById("instructions")!;
-const mineCountEl = document.getElementById("mine-count")!;
-const timerEl = document.getElementById("timer-el")!;
+const minesDisplay = document.getElementById("mines-display")!;
+const timerDisplay = document.getElementById("timer-display")!;
+const difficultySelect = document.getElementById(
+  "difficulty-select",
+) as HTMLSelectElement;
 
-const BOARD_SIZE: Vector2D = {
-  x: 10,
-  y: 10,
-};
+let currentBoard: Board;
+let currentDifficulty: Difficulty = Difficulty.BEGINNER;
+let gameTimer: number | null = null;
+let gameStartTime: number = 0;
+let moveCount: number = 0;
+
+function updateMinesDisplay(count: number) {
+  const digits = Math.abs(count).toString().padStart(3, "0");
+  const display = minesDisplay.querySelector(".led-digits")! as HTMLElement;
+  display.textContent = digits;
+
+  // Show negative count with different styling if needed
+  if (count < 0) {
+    display.style.color = "#ffA500";
+    display.style.textShadow = "0 0 5px #ffA500";
+  } else {
+    display.style.color = "#ff0000";
+    display.style.textShadow = "0 0 5px #ff0000";
+  }
+}
+
+function updateTimerDisplay(seconds: number) {
+  const digits = Math.min(999, seconds).toString().padStart(3, "0");
+  timerDisplay.querySelector(".led-digits")!.textContent = digits;
+}
+
+function startTimer() {
+  gameStartTime = Date.now();
+  gameTimer = setInterval(() => {
+    const elapsed = Math.floor((Date.now() - gameStartTime) / 1000);
+    updateTimerDisplay(elapsed);
+  }, 1000);
+}
+
+function stopTimer() {
+  if (gameTimer) {
+    clearInterval(gameTimer);
+    gameTimer = null;
+  }
+}
+
+function createNewGame() {
+  stopTimer();
+  moveCount = 0;
+
+  const config = DIFFICULTY_CONFIGS[currentDifficulty];
+  currentBoard = new Board(config.size, config.mines);
+
+  updateMinesDisplay(config.mines);
+  updateTimerDisplay(0);
+
+  initBoardUI(currentBoard);
+  renderBoard(currentBoard);
+}
 
 function initBoardUI(board: Board) {
+  // Clear existing board
+  uiBoard.innerHTML = "";
+
   const size = board.size;
   for (let y = 0; y < size.y; y++) {
     const row = document.createElement("div");
@@ -25,11 +82,33 @@ function initBoardUI(board: Board) {
     }
     uiBoard.appendChild(row);
   }
-  uiBoard.style.gridTemplateColumns = `repeat(${BOARD_SIZE.x}, var(--cell-size))`;
+
+  uiBoard.style.gridTemplateColumns = `repeat(${size.x}, var(--cell-size))`;
+
+  // Add event listeners for the new board
+  addCellEventListeners();
+}
+
+function addCellEventListeners() {
+  const size = currentBoard.size;
+  for (let y = 0; y < size.y; y++) {
+    for (let x = 0; x < size.x; x++) {
+      const cell = document.getElementById(`${x}-${y}`)!;
+
+      // Remove existing listeners by cloning the element
+      const newCell = cell.cloneNode(true) as HTMLElement;
+      cell.parentNode!.replaceChild(newCell, cell);
+
+      newCell.addEventListener("click", () => handleCellClick(x, y));
+      newCell.addEventListener("contextmenu", (e) =>
+        handleCellRightClick(e, x, y),
+      );
+    }
+  }
 }
 
 function renderBoard(board: Board) {
-  mineCountEl.innerText = `Mines remaining: ${board.minesRemaining}`;
+  updateMinesDisplay(board.minesRemaining);
 
   const size = board.size;
   for (let y = 0; y < size.y; y++) {
@@ -63,76 +142,66 @@ function renderBoard(board: Board) {
   }
 }
 
+function handleCellClick(x: number, y: number) {
+  if (currentBoard.gameState === GameState.NOT_STARTED) {
+    instructions.innerText = "";
+    startTimer();
+  }
+
+  if (
+    currentBoard.gameState === GameState.LOSE ||
+    currentBoard.gameState === GameState.WIN
+  )
+    return;
+
+  currentBoard.revealCell({ x, y });
+  moveCount++;
+  renderBoard(currentBoard);
+  checkGameState(currentBoard);
+}
+
+function handleCellRightClick(e: MouseEvent, x: number, y: number) {
+  e.preventDefault();
+
+  if (
+    currentBoard.gameState === GameState.LOSE ||
+    currentBoard.gameState === GameState.WIN
+  )
+    return;
+
+  currentBoard.toggleFlag({ x, y });
+  renderBoard(currentBoard);
+  checkGameState(currentBoard);
+}
+function checkGameState(b: Board) {
+  if (b.gameState === GameState.LOSE) {
+    instructions.innerText = "You lost!\nSelect a difficulty to play again.";
+    stopTimer();
+  } else if (b.gameState === GameState.WIN) {
+    instructions.innerText = "You Won!\nSelect a difficulty to play again.";
+    stopTimer();
+  }
+}
+
 function resetAndSetCellClassName(cell: HTMLElement, className: string) {
   cell.className = `cell ${className}`;
 }
 
-function checkGameState(b: Board) {
-  if (b.gameState === GameState.LOSE) {
-    instructions.innerText = "You lost!\nReload to restart a new game.";
-    stopTimer();
-  } else if (b.gameState === GameState.WIN) {
-    instructions.innerText = "You Won!\nReload to start a new game.";
-    mineCountEl.innerText = "";
-    stopTimer();
-  }
-}
-
-function startTimer() {
-  timerEl.setAttribute("time-s", "1");
-  timerEl.innerText = `Time elapsed: ${1}s`;
-
-  const hdlr = setInterval(() => {
-    const t = parseInt(timerEl.getAttribute("time-s") ?? "0");
-    timerEl.setAttribute("time-s", (t + 1).toString());
-    timerEl.innerText = `Time elapsed: ${t + 1}s`;
-  }, 1000);
-  timerEl.setAttribute("timer-hdlr", hdlr.toString());
-}
-
-function stopTimer() {
-  if (!timerEl.getAttribute("timer-hdlr"))
-    throw new Error("Interval ref not found");
-  const hdlr = parseInt(timerEl.getAttribute("timer-hdlr")!);
-  clearInterval(hdlr);
-  timerEl.setAttribute("time-s", "");
-  timerEl.innerText = "";
-}
-
 async function main() {
-  const b = new Board(BOARD_SIZE);
-  initBoardUI(b);
+  // Set initial difficulty
+  difficultySelect.value = currentDifficulty;
 
-  // Add event listeners
-  for (let y = 0; y < BOARD_SIZE.y; y++) {
-    for (let x = 0; x < BOARD_SIZE.x; x++) {
-      document.getElementById(`${x}-${y}`)!.addEventListener("click", () => {
-        if (b.gameState === GameState.NOT_STARTED) {
-          instructions.innerText = "";
-          startTimer();
-        }
+  // Add difficulty change listener
+  difficultySelect.addEventListener("change", (e) => {
+    const select = e.target as HTMLSelectElement;
+    currentDifficulty = select.value as Difficulty;
+    createNewGame();
+    instructions.innerText = "Click to play.\nRight click to place flags.";
+  });
 
-        if (b.gameState === GameState.LOSE || b.gameState === GameState.WIN)
-          return;
-
-        b.revealCell({ x, y });
-        renderBoard(b);
-        checkGameState(b);
-      });
-
-      document
-        .getElementById(`${x}-${y}`)!
-        .addEventListener("contextmenu", (e) => {
-          e.preventDefault();
-          if (b.gameState === GameState.LOSE || b.gameState === GameState.WIN)
-            return;
-
-          b.toggleFlag({ x, y });
-          renderBoard(b);
-          checkGameState(b);
-        });
-    }
-  }
+  // Create initial game
+  createNewGame();
+  instructions.innerText = "Click to play.\nRight click to place flags.";
 }
 
 main();

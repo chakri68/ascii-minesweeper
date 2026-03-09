@@ -24,3 +24,15 @@ export enum GameState {
   WIN = "WIN",
   LOSE = "LOSE",
 }
+
+export enum Difficulty {
+  BEGINNER = "BEGINNER",
+  INTERMEDIATE = "INTERMEDIATE",
+  EXPERT = "EXPERT",
+}
+
+export type DifficultyConfig = {
+  size: Vector2D;
+  mines: number;
+  label: string;
+};

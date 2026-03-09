@@ -22,6 +22,7 @@
   --color-game-background: #1e1e1e;
   --color-panel-background: #2e2e2e;
   --color-text: rgba(255, 255, 255, 0.87);
+  --color-contrast-text: rgba(0, 0, 0, 0.57);
   --color-text-muted: rgba(255, 255, 255, 0.5);
 
   --font-primary: "Space Grotesk", sans-serif;
@@ -55,6 +56,88 @@ body {
   padding: 1rem;
 }
 
+#game-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 1rem;
+  background-color: var(--win-bg);
+  border-radius: 0.5rem;
+  margin-bottom: 1rem;
+  border: 4px solid;
+  border-top-color: var(--win-border-light);
+  border-left-color: var(--win-border-light);
+  border-right-color: var(--win-border-dark);
+  border-bottom-color: var(--win-border-dark);
+}
+
+#difficulty-selector select {
+  background-color: var(--win-bg);
+  color: var(--color-contrast-text);
+  border: 2px solid;
+  border-top-color: var(--win-border-dark);
+  border-left-color: var(--win-border-dark);
+  border-right-color: var(--win-border-light);
+  border-bottom-color: var(--win-border-light);
+  padding: 0.5rem;
+  font-family: var(--font-primary);
+  font-size: 0.9rem;
+  cursor: pointer;
+  appearance: none;
+  width: fit-content;
+}
+
+#game-stats {
+  display: flex;
+  gap: 2rem;
+
+  .stat-label {
+    font-family: var(--font-primary);
+    font-size: 0.5rem;
+    font-weight: 600;
+    color: #333;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+  }
+}
+
+.stat-container {
+  display: flex;
+  flex-direction: column;
+  gap: 0.15rem;
+}
+
+.stat-label {
+  font-family: var(--font-primary);
+  font-size: 0.8rem;
+  font-weight: 600;
+  color: #333;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+}
+
+.led-display {
+  background-color: #000000;
+  border: 3px solid;
+  border-top-color: var(--win-border-dark);
+  border-left-color: var(--win-border-dark);
+  border-right-color: var(--win-border-light);
+  border-bottom-color: var(--win-border-light);
+  padding: 0.5rem 0.8rem;
+  border-radius: 3px;
+  font-family: "VT323", monospace;
+  font-size: 1.5rem;
+  min-width: 60px;
+  text-align: center;
+}
+
+.led-digits {
+  color: #ff0000;
+  text-shadow: 0 0 5px #ff0000;
+  font-weight: bold;
+  letter-spacing: 2px;
+}
+
 #main-text {
   text-align: center;
   padding: 1rem;
@@ -73,8 +156,7 @@ body {
   }
 }
 
-/* --- THE BOARD (GRID SYSTEM) --- */
-
+/* Add some responsive styling for different difficulty board sizes */
 #board {
   display: grid;
   /* Set this dynamically in JS if board size changes: 
@@ -84,6 +166,8 @@ body {
   padding: 0.5rem;
   margin: 0 auto;
   background-color: var(--win-bg);
+  max-width: 90vw;
+  overflow-x: auto;
 
   /* Classic "Inset" border for the play area */
   border: 4px solid;
@@ -91,6 +175,33 @@ body {
   border-left-color: var(--win-border-dark);
   border-right-color: var(--win-border-light);
   border-bottom-color: var(--win-border-light);
+}
+
+/* Adjust cell size for smaller screens */
+@media (max-width: 768px) {
+  :root {
+    --cell-size: 2rem;
+  }
+
+  .led-display {
+    font-size: 1.2rem;
+    min-width: 50px;
+    padding: 0.4rem 0.6rem;
+  }
+
+  #game-stats {
+    gap: 1rem;
+  }
+
+  .stat-label {
+    font-size: 0.7rem;
+  }
+
+  .led-display {
+    font-size: 1rem;
+    min-width: 40px;
+    padding: 0.3rem 0.5rem;
+  }
 }
 
 .row {

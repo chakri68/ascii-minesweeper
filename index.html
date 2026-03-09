@@ -18,13 +18,34 @@
   <body>
     <div id="app">
       <div id="game">
+        <div id="game-header">
+          <div id="difficulty-selector">
+            <select id="difficulty-select">
+              <option value="BEGINNER">Beginner</option>
+              <option value="INTERMEDIATE">Intermediate</option>
+              <option value="EXPERT">Expert</option>
+            </select>
+          </div>
+          <div id="game-stats">
+            <div class="stat-container">
+              <div class="stat-label">Mines</div>
+              <div id="mines-display" class="led-display">
+                <span class="led-digits">010</span>
+              </div>
+            </div>
+            <div class="stat-container">
+              <div class="stat-label">Time</div>
+              <div id="timer-display" class="led-display">
+                <span class="led-digits">000</span>
+              </div>
+            </div>
+          </div>
+        </div>
         <div id="main-text">
           <h3 id="heading">Minesweeper</h3>
           <p id="instructions">
             Click to play.<br />Right click to place flags.
           </p>
-          <div id="timer-el"></div>
-          <div id="mine-count"></div>
         </div>
         <div id="board"></div>
       </div>

@@ -6,14 +6,17 @@ import {
   type CellState,
   type Vector2D,
 } from "./types";
-import { addVec, weightedRand } from "./utils";
+import { addVec } from "./utils";
 
 export class Board {
   readonly cells: CellState[][];
   gameState: GameState = GameState.NOT_STARTED;
   minesRemaining: number = 0;
 
-  constructor(readonly size: Vector2D) {
+  constructor(
+    readonly size: Vector2D,
+    readonly totalMines: number,
+  ) {
     this.cells = Array.from({ length: size.y }, () =>
       Array.from(
         { length: size.x },
@@ -25,21 +28,31 @@ export class Board {
           }) as CellState,
       ),
     );
+    this.minesRemaining = totalMines;
   }
 
   public initBoard(initCoord: Vector2D) {
-    // 1. Randomly scatter the mines
-    // We skip the initial click coordinate to ensure the first move is never a mine
+    // 1. Generate all possible coordinates except the initial click
+    const availableCoords: Vector2D[] = [];
     for (let y = 0; y < this.size.y; y++) {
       for (let x = 0; x < this.size.x; x++) {
-        if (initCoord.x === x && initCoord.y === y) continue;
-
-        if (this.getMineProbability() > 0.5) {
-          this.cells[y][x].type = CellType.MINE;
-          this.minesRemaining++;
+        if (initCoord.x !== x || initCoord.y !== y) {
+          availableCoords.push({ x, y });
         }
       }
     }
+
+    // 2. Randomly select mine positions
+    const minePositions = [];
+    for (let i = 0; i < this.totalMines && availableCoords.length > 0; i++) {
+      const randomIndex = Math.floor(Math.random() * availableCoords.length);
+      const coord = availableCoords.splice(randomIndex, 1)[0];
+      minePositions.push(coord);
+      this.cells[coord.y][coord.x].type = CellType.MINE;
+    }
+
+    // Reset mines remaining to the actual number of mines placed
+    this.minesRemaining = minePositions.length;
 
     // 2. Calculate neighbor counts for non-mine cells
     for (let y = 0; y < this.size.y; y++) {
@@ -224,9 +237,5 @@ export class Board {
       coord.y >= 0 &&
       coord.y < this.size.y
     );
-  }
-
-  private getMineProbability() {
-    return weightedRand(-20) * (this.size.x * this.size.y);
   }
 }
