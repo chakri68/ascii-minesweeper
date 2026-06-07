@@ -14,6 +14,59 @@
       rel="stylesheet"
     />
     <title>Minesweeper</title>
+    <script>
+      (function () {
+        // Only accept theming from your ROM Shelf origin(s). Add localhost for dev.
+        var ALLOWED = ["chakri.me", "localhost:"];
+
+        function applySkin(s) {
+          if (!s) return;
+
+          if (s.fontHref && !document.getElementById("gb-skin-font")) {
+            const link = document.createElement("link");
+            link.id = "gb-skin-font";
+            link.rel = "stylesheet";
+            link.href = s.fontHref;
+            document.head.appendChild(link);
+          }
+
+          const css = `
+    html, body {
+      ${s.bg ? `background-color: ${s.bg} !important;` : ""}
+      ${s.fg ? `color: ${s.fg} !important;` : ""}
+      ${s.fontFamily ? `font-family: ${s.fontFamily} !important;` : ""}
+    }
+
+    body * {
+    ${s.bg ? `background-color: ${s.bg} !important;` : ""}
+      ${s.fg ? `color: ${s.fg};` : ""}
+      ${s.fontFamily ? `font-family: ${s.fontFamily};` : ""}
+    }
+  `;
+
+          const style =
+            document.getElementById("gb-skin-style") ||
+            document.createElement("style");
+
+          style.id = "gb-skin-style";
+          style.textContent = css;
+          document.head.appendChild(style);
+        }
+
+        window.addEventListener("message", function (e) {
+          console.log("Hello");
+          console.log({ or: e.origin });
+          if (ALLOWED.filter((a) => e.origin.includes(a)).length == 0) return;
+          var d = e.data;
+          if (d && d.type === "gb-screen-skin") applySkin(d);
+        });
+
+        // Tell the parent we're ready, in case it posted before this listener existed.
+        try {
+          parent.postMessage({ type: "gb-screen-ready" }, "*");
+        } catch (_) {}
+      })();
+    </script>
   </head>
   <body>
     <div id="app">
